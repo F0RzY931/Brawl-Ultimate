@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>⚡ BRAWL UNIVERSE: ULTIMATE ⚡</title>
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 20%, #1a2f3a, #0a1217);
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app {
+            background: #1e2538e0;
+            backdrop-filter: blur(6px);
+            border-radius: 56px;
+            box-shadow: 0 30px 45px rgba(0,0,0,0.7);
+            padding: 18px 20px 22px;
+            width: fit-content;
+            max-width: 1500px;
+        }
+
+        .nav-bar {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: #2c2f3e;
+            border: none;
+            font-weight: bold;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #151a24;
+            color: #ffec9f;
+            transition: 0.07s linear;
+        }
+        .nav-btn.active {
+            background: #f7b32b;
+            color: #1e2a1a;
+            box-shadow: 0 4px 0 #a05e15;
+        }
+        .nav-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #151a24; }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 32px;
+            box-shadow: 0 12px 28px black;
+            cursor: crosshair;
+            background: #3a5c4a;
+        }
+
+        .ui-panel {
+            margin-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #0f111fcc;
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 60px;
+        }
+
+        .resources {
+            display: flex;
+            gap: 28px;
+            background: #00000066;
+            padding: 6px 20px;
+            border-radius: 40px;
+        }
+
+        .resource {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #ffec9f;
+            text-shadow: 0 2px 2px black;
+        }
+
+        .brawler-stats {
+            background: #202231;
+            padding: 6px 20px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #f7b32b;
+            border: none;
+            font-weight: bold;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.07s linear;
+            box-shadow: 0 5px 0 #a05e15;
+            color: #2d1b00;
+        }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #a05e15; }
+        .danger-btn { background: #d9534f; box-shadow: 0 5px 0 #8b2c2a; color: white; }
+        .ult-bar {
+            background: #2d1f0c;
+            border-radius: 30px;
+            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ult-fill {
+            width: 120px;
+            height: 14px;
+            background: #4a2a0a;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .ult-progress { width: 0%; height: 100%; background: #f7d44a; transition: width 0.1s; }
+
+        .inventory-grid {
+            background: #0e1020cc;
+            border-radius: 48px;
+            padding: 20px;
+            max-height: 620px;
+            overflow-y: auto;
+            backdrop-filter: blur(8px);
+            color: white;
+        }
+        .brawlers-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+        }
+        .brawler-card {
+            background: #23253b;
+            border-radius: 28px;
+            padding: 12px 8px;
+            text-align: center;
+            border: 2px solid #ffcd7e33;
+            cursor: pointer;
+            transition: 0.05s linear;
+            color: #ffeaac;
+        }
+        .brawler-card.locked { filter: grayscale(0.7); opacity: 0.6; background: #1a1c2a; cursor: pointer; }
+        .brawler-card:active { transform: scale(0.97);}
+        .brawler-icon { font-size: 48px; }
+        .brawler-name { font-weight: bold; }
+        .gem-price { font-size: 12px; background: #f7b32b; display: inline-block; padding: 2px 8px; border-radius: 20px; margin-top: 6px; color: #2c1a00;}
+        
+        .buff-timer {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #1f1f1fcc; color: #ffd966; padding: 6px 20px; border-radius: 40px;
+            font-weight: bold; backdrop-filter: blur(8px); z-index: 50;
+        }
+        .controls-info {
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 12px;
+            background: #00000077;
+            border-radius: 40px;
+            padding: 6px 20px;
+            color: #ddd;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 900px) {
+            .ui-panel { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="nav-bar">
+        <button id="btnGame" class="nav-btn active">🏟️ АРЕНА</button>
+        <button id="btnInventory" class="nav-btn">📦 ИНВЕНТАРЬ / МАГАЗИН</button>
+    </div>
+
+    <div id="gameScreen" class="screen active">
+        <canvas id="gameCanvas" width="1300" height="750"></canvas>
+        <div class="ui-panel">
+            <div class="resources">
+                <div class="resource"><span>❤️</span> <span id="playerHp">5000</span></div>
+                <div class="resource"><span>⭐ Гемы</span> <span id="gemCount">150</span></div>
+                <div class="resource"><span>🪙 Монеты</span> <span id="coinCount">3000</span></div>
+            </div>
+            <div class="brawler-stats">
+                <div>⚔️ <span id="selectedBrawlerName">Шелли</span> <span id="passiveBadge" style="background:#333; padding:2px 8px; border-radius:20px;">Дробовик</span></div>
+                <div>💥 Урон: <span id="selectedDmg">480</span></div>
+                <div>⭐ Ур. <span id="brawlerLvl">1</span>/11</div>
+                <div>🗺️ <span id="currentMapName">Лес</span></div>
+            </div>
+            <div class="ult-bar">
+                <span>🔥 УЛЬТА</span>
+                <div class="ult-fill"><div id="ultProgress" class="ult-progress" style="width:0%"></div></div>
+                <span id="ultReady">⏳</span>
+            </div>
+            <button id="openBoxBtn">🎁 ЯЩИК (30⭐)</button>
+            <button id="upgradeBtn" class="upgrade-btn">⬆️ ПРОКАЧАТЬ</button>
+            <button id="endBattleBtn" class="danger-btn">🏁 ЗАКОНЧИТЬ</button>
+            <button id="startBattleBtn">⚔️ НАЧАТЬ БОЙ</button>
+        </div>
+        <div class="controls-info">
+            🎮 WASD — движение | 🖱️ ЛКМ — выстрел | 🔥 R — УЛЬТА | 🩸 Регенерация | ⚠️ БОССЫ ×30 УРОНА!
+        </div>
+        <div id="buffIndicator" class="buff-timer">💪 без баффа</div>
+    </div>
+
+    <div id="inventoryScreen" class="screen">
+        <div class="inventory-grid">
+            <h2 style="color:white;">📜 КОЛЛЕКЦИЯ БОЙЦОВ (19) — ПОКУПКА ЗА 💎 ГЕМЫ</h2>
+            <div id="brawlersContainer" class="brawlers-list"></div>
+            <div style="margin-top:20px; text-align:center; color:#ffd966;">
+                💡 Выберите бойца, чтобы купить или применить.<br>
+                🔄 Игра автоматически ставится на паузу в меню.
+            </div>
+            <button id="resetProgressBtn" style="margin-top:20px; background:#a05e15; width:100%;">🔄 СБРОС ВСЕГО ПРОГРЕССА</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+    "use strict";
+    
+    // ==================== КОНФИГУРАЦИЯ ====================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Редкости и цены
+    const RARITIES = {
+        COMMON: { name: "Обычный", weight: 38, icon: "⚪", priceGems: 15, priceCoins: 500 },
+        RARE: { name: "Редкий", weight: 28, icon: "🔵", priceGems: 35, priceCoins: 1200 },
+        SUPER_RARE: { name: "Суперредкий", weight: 18, icon: "🟣", priceGems: 70, priceCoins: 2500 },
+        EPIC: { name: "Эпический", weight: 10, icon: "🟠", priceGems: 140, priceCoins: 5000 },
+        MYTHIC: { name: "Мифический", weight: 4, icon: "🔮", priceGems: 250, priceCoins: 9000 },
+        LEGENDARY: { name: "Легендарный", weight: 2, icon: "👑", priceGems: 450, priceCoins: 15000 }
+    };
+    
+    // Карты
+    const MAPS = {
+        "Лес": { bg1: "#2f6b47", bg2: "#4e8d5e", decor: "tree" },
+        "Пустыня": { bg1: "#d4a373", bg2: "#e9c46a", decor: "cactus" },
+        "Арена": { bg1: "#8b5a2b", bg2: "#b07d4b", decor: "pillar" },
+        "Зима": { bg1: "#a0c4ff", bg2: "#cfe3ff", decor: "snowman" },
+        "Вулкан": { bg1: "#7a2e2e", bg2: "#b0413e", decor: "lava" },
+        "Болото": { bg1: "#4a5d23", bg2: "#6b8e23", decor: "swamp" },
+        "Небеса": { bg1: "#87ceeb", bg2: "#b0e0e6", decor: "cloud" },
+        "Подземелье": { bg1: "#4a3b2c", bg2: "#5c4a3a", decor: "skull" },
+        "Пляж": { bg1: "#f5deb3", bg2: "#ffe4b5", decor: "palm" },
+        "Космос": { bg1: "#1a1a2e", bg2: "#16213e", decor: "planet" }
+    };
+    
+    // ==================== БАЗА БОЙЦОВ ====================
+    let brawlersPool = [];
+    let nextId = 0;
+    
+    function addBrawler(name, rarity, baseHp, baseDamage, icon, passiveDesc, passiveEffect) {
+        brawlersPool.push({ 
+            id: nextId++, 
+            name, 
+            rarity, 
+            baseHp, 
+            baseDamage, 
+            icon, 
+            level: 1,
+            passive: passiveDesc, 
+            passiveEffect: passiveEffect,
+            skins: { "Стандартный": { color: null, icon: icon, priceCoins: 0 } }
+        });
+    }
+    
+    // 19 уникальных бойцов
+    addBrawler("Шелли", RARITIES.COMMON, 5100, 480, "🔫", "Дробовик: +20% урона вблизи", "shelly");
+    addBrawler("Кольт", RARITIES.RARE, 5200, 540, "🤠", "Скорострельность: -15% кд выстрела", "colt");
+    addBrawler("Булл", RARITIES.RARE, 6400, 420, "🐂", "Ярость: +30% урона при HP<40%", "bull");
+    addBrawler("Джесси", RARITIES.SUPER_RARE, 5300, 560, "⚡", "Электрошок: цепная атака", "jessie");
+    addBrawler("Пайпер", RARITIES.EPIC, 4800, 720, "🎯", "Снайпер: +40% урона на дистанции", "piper");
+    addBrawler("Спайк", RARITIES.LEGENDARY, 5400, 630, "🌵", "Шипы: 15% шанс отразить 50% урона", "thorns");
+    addBrawler("Колючка", RARITIES.COMMON, 5000, 450, "🌿", "Регенерация: +50 HP/сек", "regen");
+    addBrawler("Рокки", RARITIES.RARE, 5800, 500, "🥊", "Контратака: 50% урона врагу при атаке", "counter");
+    addBrawler("Эмбер", RARITIES.EPIC, 4900, 680, "🔥", "Ожог: пули поджигают врага", "burn");
+    addBrawler("Танк", RARITIES.EPIC, 7200, 380, "🛡️", "Броня: -20% входящего урона", "armor");
+    addBrawler("Леон", RARITIES.LEGENDARY, 5300, 600, "🐉", "Невидимость: при HP<30% невидим 3с", "invisible");
+    addBrawler("Феникс", RARITIES.LEGENDARY, 5500, 650, "🐦‍🔥", "Возрождение: 1 раз за бой воскресает", "revive");
+    addBrawler("Призрак", RARITIES.MYTHIC, 5100, 700, "👻", "Проход сквозь врагов", "phase");
+    addBrawler("Дракон", RARITIES.MYTHIC, 6200, 550, "🐲", "Страх: замедляет врагов рядом", "fear");
+    addBrawler("Тень", RARITIES.MYTHIC, 5400, 750, "🌑", "Вампиризм: 20% урона в HP", "vampire");
+    addBrawler("Вихрь", RARITIES.RARE, 4800, 520, "🌀", "Уклонение: 10% шанс увернуться", "dodge");
+    addBrawler("Кристалл", RARITIES.EPIC, 4600, 800, "💎", "Кристаллизация: замедление при попадании", "slowOnHit");
+    addBrawler("Гром", RARITIES.EPIC, 6000, 450, "⚡", "Цепная молния: урон прыгает", "chain");
+    addBrawler("Некромант", RARITIES.LEGENDARY, 5000, 550, "💀", "Призыв скелета при убийстве", "summonSkeleton");
+    
+    // Добавляем скины
+    function initSkins() {
+        brawlersPool.forEach(b => {
+            b.skins["Золотой"] = { color: "#ffd700", icon: "🌟", priceCoins: b.rarity === RARITIES.LEGENDARY ? 8000 : 2000 };
+            b.skins["Тёмный"] = { color: "#2c3e50", icon: "🌚", priceCoins: b.rarity === RARITIES.LEGENDARY ? 10000 : 3000 };
+            if(b.rarity === RARITIES.LEGENDARY) {
+                b.skins["Престиж"] = { color: "#e74c3c", icon: "👑", priceCoins: 15000 };
+            }
+            if(b.name === "Шелли") b.skins["Бандитка"] = { color: "#8B4513", icon: "🤠", priceCoins: 1500 };
+            if(b.name === "Кольт") b.skins["Шериф"] = { color: "#DAA520", icon: "⭐", priceCoins: 2000 };
+        });
+    }
+    initSkins();
+    
+    function getBrawlerStats(b) {
+        const mult = 1 + (b.level - 1) * 0.07;
+        return { hp: Math.floor(b.baseHp * mult), dmg: Math.floor(b.baseDamage * mult), mult };
+    }
+    
+    function getUpgradeCost(b) {
+        if(b.level >= 11) return null;
+        return { coins: 150 + (b.level - 1) * 30, gems: 5 };
+    }
+    
+    function getBrawler(id) { return brawlersPool.find(b => b.id === id); }
+    
+    // ==================== ИГРОК ====================
+    let player = {
+        currentHp: 5000, maxHp: 5000,
+        gems: 150, coins: 3000,
+        unlockedBrawlers: new Set([0]),
+        selectedBrawlerId: 0,
+        currentSkin: { 0: "Стандартный" },
+        ownedSkins: { 0: ["Стандартный"] },
+        totalKills: 0,
+        x: 650, y: 375, speed: 4.8
+    };
+    
+    let isBattleActive = false;
+    let isPausedForInventory = false;
+    let wave = 1;
+    let enemies = [];
+    let enemiesKilledThisWave = 0;
+    let enemiesToSpawn = 8;
+    let bossSpawnedForWave = false;
+    let megaBossSpawned = false;
+    let spawnTimer = 0;
+    
+    let currentUltCharge = 0;
+    const maxUltCharge = 100;
+    let isUltReady = false;
+    let damageBuffRemaining = 0;
+    let damageBuffUltraRemaining = 0;
+    
+    let currentMapId = "Лес";
+    
+    let projectiles = [];
+    let enemyProjectiles = [];
+    let lootBoxes = [];
+    
+    let keys = { w:false, s:false, a:false, d:false, up:false, down:false, left:false, right:false };
+    let mouseHeld = false;
+    let mouseX = 650, mouseY = 375;
+    let shootCooldown = 0;
+    const SHOOT_DELAY = 0.15;
+    
+    let reviveUsed = false;
+    let invisibleTimer = 0;
+    let playerInvincible = 0;
+    let slowTimer = 0;
+    let speedBoostTimer = 0;
+    let currentStats = { hp: 5100, dmg: 480, speed: 4.8, passiveEffect: "shelly" };
+    
+    let achievements = {
+        "Убийца": { desc: "Убейте 50 врагов", progress: 0, target: 50, rewardGems: 50, rewardCoins: 500, claimed: false },
+        "Мастер": { desc: "Убейте 200 врагов", progress: 0, target: 200, rewardGems: 150, rewardCoins: 1000, claimed: false },
+        "Богач": { desc: "Накопите 10000 монет", progress: 0, target: 10000, rewardGems: 100, rewardCoins: 2000, claimed: false },
+        "Коллекционер": { desc: "Купите 5 бойцов", progress: 0, target: 5, rewardGems: 200, rewardCoins: 0, claimed: false },
+        "Ультимативный": { desc: "Используйте ульту 10 раз", progress: 0, target: 10, rewardGems: 150, rewardCoins: 800, claimed: false }
+    };
+    
+    let floatingTexts = [];
+    let currentMapVariant = 0;
+    
+    // ==================== UI ФУНКЦИИ ====================
+    function updateUI() {
+        document.getElementById("gemCount").innerText = Math.floor(player.gems);
+        document.getElementById("coinCount").innerText = Math.floor(player.coins);
+        let b = getBrawler(player.selectedBrawlerId);
+        if(b) {
+            let s = getBrawlerStats(b);
+            let skin = player.currentSkin[b.id] || "Стандартный";
+            let skinData = b.skins[skin];
+            document.getElementById("selectedBrawlerName").innerHTML = `${skinData?.icon || b.icon} ${b.name}`;
+            document.getElementById("selectedDmg").innerText = s.dmg;
+            document.getElementById("brawlerLvl").innerText = `${b.level}/11`;
+            document.getElementById("passiveBadge").innerText = b.passive.split(':')[0];
+            document.getElementById("currentMapName").innerText = currentMapId;
+            if(!isBattleActive) player.maxHp = s.hp;
+            if(player.currentHp > player.maxHp) player.currentHp = player.maxHp;
+            updatePlayerHpUI();
+        }
+        updateUltUI();
+    }
+    
+    function updatePlayerHpUI() { 
+        document.getElementById("playerHp").innerText = Math.floor(player.currentHp) + "/" + player.maxHp; 
+    }
+    
+    function updateUltUI() { 
+        let p = (currentUltCharge / maxUltCharge) * 100;
+        document.getElementById("ultProgress").style.width = p + "%";
+        document.getElementById("ultReady").innerText = isUltReady ? "✅ ГОТОВО" : "⏳ " + Math.floor(currentUltCharge) + "%";
+    }
+    
+    function addUltCharge(amt) { 
+        if(isUltReady) return; 
+        currentUltCharge = Math.min(maxUltCharge, currentUltCharge + amt); 
+        updateUltUI(); 
+        if(currentUltCharge >= maxUltCharge) { 
+            isUltReady = true; 
+            updateUltUI(); 
+            showToast("🔥 УЛЬТА ГОТОВА! Нажми R!"); 
+        } 
+    }
+    
+    function getCurrentDamage() {
+        let b = getBrawler(player.selectedBrawlerId);
+        if(!b) return 10;
+        let base = getBrawlerStats(b).dmg;
+        let mult = 1;
+        if(damageBuffRemaining > 0) mult *= 1.5;
+        if(damageBuffUltraRemaining > 0) mult *= 2.0;
+        return Math.floor(base * mult);
+    }
+    
+    function showToast(msg, dur = 1600) {
+        let d = document.createElement('div');
+        d.innerText = msg;
+        d.style.cssText = 'position:fixed; bottom:20%; left:50%; transform:translateX(-50%); background:#000c; color:#ffec80; padding:10px 24px; border-radius:60px; z-index:1000; font-weight:bold;';
+        document.body.appendChild(d);
+        setTimeout(() => d.remove(), dur);
+    }
+    
+    function showFloatingText(text, x, y, color = "#ffd966") {
+        floatingTexts.push({ text, x, y, life: 1.0, color });
+    }
+    
+    function updateAchievement(type, amt = 1) {
+        let updated = false;
+        for(let k in achievements) {
+            let a = achievements[k];
+            if(a.claimed) continue;
+            if(k === "Убийца" && type === "kill") a.progress += amt;
+            if(k === "Мастер" && type === "kill") a.progress += amt;
+            if(k === "Богач" && type === "coin") a.progress = player.coins;
+            if(k === "Коллекционер" && type === "brawler") a.progress += amt;
+            if(k === "Ультимативный" && type === "ultra") a.progress += amt;
+            if(a.progress >= a.target && !a.claimed) {
+                a.claimed = true;
+                player.gems += a.rewardGems;
+                player.coins += a.rewardCoins || 0;
+                updated = true;
+                showToast(`🏆 ${a.desc} +${a.rewardGems}💎 +${a.rewardCoins}🪙`, 3000);
+            }
+        }
+        if(updated) { updateUI(); saveGame(); }
+    }
+
+    // ==================== ВРАГИ И СНАРЯДЫ ====================
+    class Enemy {
+        constructor(x, y, hp, dmg, lvl, isBoss = false, isMegaBoss = false) {
+            this.x = x; this.y = y; this.hp = hp; this.maxHp = hp; this.damage = dmg; this.level = lvl;
+            this.isBoss = isBoss; this.isMegaBoss = isMegaBoss;
+            this.size = isMegaBoss ? 100 : (isBoss ? 72 : 44);
+            this.speed = isMegaBoss ? 0.45 : (isBoss ? 0.65 : 0.95 + lvl * 0.2);
+            this.shootCooldown = 0; this.burnTimer = 0;
+            this.color = isMegaBoss ? "#9b2c2c" : (isBoss ? "#6a1e1e" : "#8b3c3c");
+        }
+        draw(ctx) {
+            ctx.save();
+            ctx.fillStyle = this.color;
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = "#333";
+            ctx.fillRect(this.x - 35, this.y - this.size/2 - 15, 70, 8);
+            ctx.fillStyle = this.hp > this.maxHp * 0.5 ? "#4cd964" : "#ff9500";
+            ctx.fillRect(this.x - 35, this.y - this.size/2 - 15, 70 * (this.hp / this.maxHp), 8);
+            ctx.fillStyle = "#FFD966"; ctx.font = "bold 14px monospace";
+            ctx.fillText(`${Math.floor(this.hp)}❤️`, this.x - 25, this.y - this.size/2 - 20);
+            if(this.isMegaBoss) {
+                ctx.fillStyle = "#ffaa55"; ctx.font = "bold 24px sans-serif";
+                ctx.fillText("👑 МЕГА-БОСС", this.x - 70, this.y - 65);
+            } else if(this.isBoss) {
+                ctx.fillStyle = "#ffaa55"; ctx.font = "bold 20px sans-serif";
+                ctx.fillText("👑 БОСС", this.x - 40, this.y - 55);
+            }
+            if(this.burnTimer > 0) {
+                ctx.fillStyle = "#ff6600"; ctx.globalAlpha = 0.3;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size / 2 + 3, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+            ctx.restore();
+        }
+        update(targetX, targetY, deltaSec) {
+            let dx = targetX - this.x, dy = targetY - this.y, len = Math.hypot(dx, dy);
+            if(len > 0.5) {
+                this.x += (dx / len) * this.speed * deltaSec * 60;
+                this.y += (dy / len) * this.speed * deltaSec * 60;
+            }
+            if((this.isBoss || this.isMegaBoss) && this.shootCooldown <= 0) {
+                let baseDmg = this.isMegaBoss ? 85 : 55;
+                let bossDmg = baseDmg * 30 + this.level * 8;
+                let angle = Math.atan2(targetY - this.y, targetX - this.x);
+                let bossProj = new Projectile(this.x, this.y, targetX + (Math.random()-0.5)*50, targetY + (Math.random()-0.5)*50, bossDmg, 26, 7.5, true);
+                enemyProjectiles.push(bossProj);
+                this.shootCooldown = 2.0;
+            } else if(this.shootCooldown > 0) this.shootCooldown -= deltaSec;
+            if(this.burnTimer > 0) { this.burnTimer -= deltaSec; this.hp -= 15 * deltaSec; }
+        }
+    }
+    
+    class Projectile {
+        constructor(x, y, tx, ty, dmg, size = 12, speed = 10, isBossShot = false) {
+            this.x = x; this.y = y; this.damage = dmg; this.size = size; this.speed = speed; this.isBossShot = isBossShot;
+            let dx = tx - x, dy = ty - y, len = Math.hypot(dx, dy);
+            this.vx = (dx / len) * this.speed; this.vy = (dy / len) * this.speed;
+            this.traveled = 0; this.maxRange = 800; this.burn = false;
+        }
+        update(deltaSec) {
+            this.x += this.vx * deltaSec * 60;
+            this.y += this.vy * deltaSec * 60;
+            this.traveled += this.speed * deltaSec * 60;
+            return this.traveled >= this.maxRange;
+        }
+        draw(ctx) {
+            ctx.save();
+            if(this.isBossShot) { ctx.shadowBlur = 20; ctx.shadowColor = "#ff0000"; ctx.fillStyle = "#ff4422"; }
+            else { ctx.shadowBlur = 10; ctx.shadowColor = "#ffaa33"; ctx.fillStyle = this.burn ? "#ff6600" : "#ffaa44"; }
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+        }
+    }
+    
+    // ==================== ПРОДОЛЖЕНИЕ В ЧАСТИ 2 ====================
+    // НЕ ЗАКРЫВАЙТЕ СКРИПТ! Сразу вставляйте Часть 2 после этой строки!
+        // ==================== СПАВН ВРАГОВ ====================
+        function spawnEnemyOrBoss() {
+        let side = Math.floor(Math.random() * 4);
+        let x, y;
+        const pad = 80;
+        
+        if(side === 0) { x = Math.random() * canvas.width; y = -pad; }
+        else if(side === 1) { x = canvas.width + pad; y = Math.random() * canvas.height; }
+        else if(side === 2) { x = Math.random() * canvas.width; y = canvas.height + pad; }
+        else { x = -pad; y = Math.random() * canvas.height; }
+        
+        let lvl = Math.min(5, Math.floor(wave / 3) + 1);
+        
+        // Мега-босс каждые 10 волн (НЕ ТРОГАЕМ)
+        if(wave % 10 === 0 && !megaBossSpawned && wave > 0) {
+            let megaHp = 6500 + wave * 250;
+            let megaDmg = 55;
+            enemies.push(new Enemy(x, y, megaHp, megaDmg, lvl, false, true));
+            megaBossSpawned = true;
+            showToast("👑👑 МЕГА-БОСС ПОЯВИЛСЯ! ×30 УРОНА!", 3000);
+            return;
+        }
+        
+        // Обычный босс каждые 5 волн (НЕ ТРОГАЕМ)
+        if(wave % 5 === 0 && !bossSpawnedForWave && !megaBossSpawned && wave > 0) {
+            let bossHp = 3200 + wave * 180;
+            let bossDmg = 45;
+            enemies.push(new Enemy(x, y, bossHp, bossDmg, lvl, true, false));
+            bossSpawnedForWave = true;
+            showToast("👑 БОСС ПОЯВИЛСЯ! ×30 УРОНА!", 2500);
+            return;
+        }
+        
+        // ========== ТОЛЬКО ОБЫЧНЫЕ ВРАГИ (ИСПРАВЛЕНО) ==========
+        if(!megaBossSpawned) {
+            // HP врага (оставляем как было или можно увеличить)
+            let hp = 500 + wave * 60 + lvl * 180;
+            
+            // ===== УРОН: 550 + 35 за каждую волну =====
+            let dmg = 550 + (wave - 1) * 35;
+            
+            let enemy = new Enemy(x, y, hp, dmg, lvl, false, false);
+            enemy.color = "#c0392b"; // Красный оттенок для обычных врагов
+            
+            enemies.push(enemy);
+            
+            // Отладка (можно удалить)
+            console.log(`Обычный враг: HP=${hp}, DMG=${dmg}, Волна=${wave}`);
+        }
+    }
+    
+      // ==================== СИСТЕМА ВОЛН (С ВОССТАНОВЛЕНИЕМ 10% HP) ====================
+    function updateWaveSystem(deltaSec) {
+        if(!isBattleActive || isPausedForInventory) return;
+        
+        // Таймер спавна
+        if(spawnTimer <= 0 && enemies.length < 30 && enemiesToSpawn > 0) {
+            spawnEnemyOrBoss();
+            enemiesToSpawn--;
+            spawnTimer = 1.2;
+        } else {
+            spawnTimer -= deltaSec;
+        }
+        
+        // Проверка завершения волны
+        if(enemies.length === 0 && enemiesToSpawn === 0) {
+            wave++;
+            enemiesKilledThisWave = 0;
+            bossSpawnedForWave = false;
+            megaBossSpawned = false;
+            enemiesToSpawn = 6 + Math.floor(wave * 1.8);
+            if(enemiesToSpawn > 40) enemiesToSpawn = 40;
+            
+            // Награда за волну
+            let coinReward = wave * 20;
+            let gemReward = Math.floor(wave / 4) + 1;
+            player.coins += coinReward;
+            player.gems += gemReward;
+            
+            // ========== ВОССТАНОВЛЕНИЕ 10% HP ПОСЛЕ ВОЛНЫ ==========
+            let healAmount = Math.floor(player.maxHp * 0.1);
+            player.currentHp = Math.min(player.maxHp, player.currentHp + healAmount);
+            showFloatingText(`+${healAmount} HP`, player.x, player.y - 40, "#4cd964");
+            
+            updateUI();
+            showToast(`🌊 ВОЛНА ${wave}! +${coinReward}🪙 +${gemReward}💎 | +10% HP`, 2000);
+            saveGame();
+            
+            // Спавним начальных врагов для новой волны
+            for(let i = 0; i < 3; i++) {
+                if(enemiesToSpawn > 0) {
+                    spawnEnemyOrBoss();
+                    enemiesToSpawn--;
+                }
+            }
+        }
+    }
+                // Визуальный эффект восстановления
+            for(let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    showFloatingText("+", player.x + Math.random()*40-20, player.y - 30 - i*10, "#4cd964");
+                }, i * 100);
+            }
+    
+     // ==================== РЕГЕНЕРАЦИЯ (ЗАМЕДЛЕННАЯ) ====================
+    let lastRegenTime = 0;
+    function updateRegeneration(now) {
+        if(!isBattleActive || isPausedForInventory) return;
+        if(lastRegenTime === 0) lastRegenTime = now;
+        
+        let delta = now - lastRegenTime;
+        if(delta >= 1000) {
+            // Базовая регенерация игрока: всего 25 HP/сек (было 100)
+            let regenAmount = 25;
+            
+            // Пассивка "Регенерация" у Колючки: +15 HP/сек дополнительно
+            if(currentStats?.passiveEffect === 'regen') {
+                regenAmount += 15;
+            }
+            
+            player.currentHp = Math.min(player.maxHp, player.currentHp + regenAmount);
+            updatePlayerHpUI();
+            
+            // Регенерация боссов: 50 HP/сек (было 150)
+            for(let e of enemies) {
+                if(e.isBoss) {
+                    e.hp = Math.min(e.maxHp, e.hp + 50);
+                }
+                if(e.isMegaBoss) {
+                    e.hp = Math.min(e.maxHp, e.hp + 75);
+                }
+            }
+            
+            lastRegenTime = now;
+        }
+        requestAnimationFrame(updateRegeneration);
+    }
+    
+    // ==================== УЛЬТА ====================
+    function activateUlt() {
+        if(!isUltReady || !isBattleActive || isPausedForInventory) return;
+        
+        damageBuffUltraRemaining = 5.0;
+        currentUltCharge = 0;
+        isUltReady = false;
+        updateUltUI();
+        
+        // Эффект ульты зависит от бойца
+        let b = getBrawler(player.selectedBrawlerId);
+        if(b) {
+            if(b.passiveEffect === 'shelly') {
+                // Шелли: дополнительный урон по области
+                for(let e of enemies) {
+                    if(Math.hypot(player.x - e.x, player.y - e.y) < 200) {
+                        e.hp -= getCurrentDamage() * 2;
+                    }
+                }
+            } else if(b.passiveEffect === 'colt') {
+                // Кольт: скорострельность
+                shootCooldown = 0;
+            }
+        }
+        
+        showToast("💥 УЛЬТА АКТИВИРОВАНА! +100% УРОНА НА 5 СЕК!", 1500);
+        updateAchievement("ultra", 1);
+    }
+    
+    // ==================== НАГРАДА ЗА УБИЙСТВО ====================
+    function killReward(e) {
+        let coinGain = 30 + Math.floor(Math.random() * 80) + wave * 5;
+        let gemGain = 0;
+        
+        if(e.isMegaBoss) {
+            coinGain += 500;
+            gemGain = 8;
+            showFloatingText("💎💎 МЕГА-БОСС!", e.x, e.y - 40, "#ffaa55");
+        } else if(e.isBoss) {
+            coinGain += 200;
+            gemGain = 3;
+            showFloatingText("💎 БОСС!", e.x, e.y - 40, "#ffaa55");
+        } else {
+            gemGain = Math.random() < 0.15 ? 1 : 0;
+        }
+        
+        player.coins += coinGain;
+        player.gems += gemGain;
+        player.totalKills++;
+        enemiesKilledThisWave++;
+        
+        // Шанс выпадения лутбокса
+        if(Math.random() < 0.1) {
+            lootBoxes.push({
+                x: e.x,
+                y: e.y,
+                radius: 18
+            });
+        }
+        
+        // Пассивка Некроманта
+        if(currentStats?.passiveEffect === 'summonSkeleton' && !e.isBoss && !e.isMegaBoss) {
+            if(Math.random() < 0.3) {
+                // Скелет-миньон (пока просто как союзный враг, который не атакует игрока)
+                let skeleton = new Enemy(e.x, e.y, 200, 25, 1, false, false);
+                skeleton.color = "#7f8c8d";
+                skeleton.typeName = "Скелет";
+                enemies.push(skeleton);
+                showFloatingText("💀 СКЕЛЕТ ПРИЗВАН!", e.x, e.y - 20, "#7f8c8d");
+            }
+        }
+        
+        // Пассивка вампиризма
+        if(currentStats?.passiveEffect === 'vampire') {
+            let heal = Math.floor(getCurrentDamage() * 0.2);
+            player.currentHp = Math.min(player.maxHp, player.currentHp + heal);
+            showFloatingText(`+${heal} HP`, player.x, player.y - 30, "#4cd964");
+        }
+        
+        updateUI();
+        updateAchievement("kill", 1);
+        
+        if(gemGain > 0) {
+            showFloatingText(`+${gemGain}💎`, e.x, e.y - 20, "#0ff");
+        }
+    }
+    
+    // ==================== СТАРТ БОЯ ====================
+    function startBattle() {
+        if(isBattleActive) return;
+        
+        isBattleActive = true;
+        isPausedForInventory = false;
+        
+        let b = getBrawler(player.selectedBrawlerId);
+        if(b) {
+            let stats = getBrawlerStats(b);
+            player.maxHp = stats.hp;
+            currentStats = { ...stats, passiveEffect: b.passiveEffect, speed: 4.8 };
+        }
+        player.currentHp = player.maxHp;
+        updatePlayerHpUI();
+        
+        // Очистка
+        enemies = [];
+        projectiles = [];
+        enemyProjectiles = [];
+        lootBoxes = [];
+        
+        // Сброс волны
+        wave = 1;
+        enemiesToSpawn = 8;
+        enemiesKilledThisWave = 0;
+        bossSpawnedForWave = false;
+        megaBossSpawned = false;
+        spawnTimer = 0;
+        
+        // Сброс ульты
+        currentUltCharge = 0;
+        isUltReady = false;
+        damageBuffRemaining = 0;
+        damageBuffUltraRemaining = 0;
+        reviveUsed = false;
+        
+        updateUltUI();
+        
+        // Спавн начальных врагов
+        for(let i = 0; i < 5; i++) {
+            if(enemiesToSpawn > 0) {
+                spawnEnemyOrBoss();
+                enemiesToSpawn--;
+            }
+        }
+        
+        showToast("⚔️ БОЙ НАЧАЛСЯ! ×30 УРОНА ОТ БОССОВ!", 2000);
+        saveGame();
+    }
+    
+    // ==================== КОНЕЦ БОЯ ====================
+    function endBattle() {
+        if(!isBattleActive) return;
+        
+        isBattleActive = false;
+        enemies = [];
+        projectiles = [];
+        enemyProjectiles = [];
+        lootBoxes = [];
+        
+        showToast("🏁 БОЙ ЗАВЕРШЁН.", 1500);
+        saveGame();
+    }
+    
+    // ==================== КОЛЛИЗИИ И УРОН (ИСПРАВЛЕНО) ====================
+    function takeDamageFromEnemies(deltaSec) {
+        if(!isBattleActive || isPausedForInventory) return;
+        
+        for(let i = 0; i < enemies.length; i++) {
+            let e = enemies[i];
+            let dist = Math.hypot(player.x - e.x, player.y - e.y);
+            let collisionDist = 40 + e.size / 2; // УВЕЛИЧЕНО с 35 до 40
+            
+            if(dist < collisionDist) {
+                if(playerInvincible <= 0 && invisibleTimer <= 0) {
+                    let dmgTaken = Math.max(550, e.damage); // МИНИМАЛЬНЫЙ УРОН 550
+                    
+                    // Пассивки защиты
+                    if(currentStats?.passiveEffect === 'armor') dmgTaken *= 0.8;
+                    if(currentStats?.passiveEffect === 'dodge' && Math.random() < 0.1) {
+                        dmgTaken = 0;
+                        showFloatingText("УКЛОНЕНИЕ!", player.x, player.y - 30, "#48c9b0");
+                    }
+                    
+                    // Пассивка щита (блок раз в 10 сек)
+                    if(currentStats?.passiveEffect === 'block' && !window.blockOnCooldown) {
+                        dmgTaken = 0;
+                        window.blockOnCooldown = true;
+                        showFloatingText("🛡️ БЛОК!", player.x, player.y - 30, "#f5b041");
+                        setTimeout(() => window.blockOnCooldown = false, 10000);
+                    }
+                    
+                    // НАНОСИМ УРОН ИГРОКУ
+                    player.currentHp = Math.max(0, player.currentHp - dmgTaken);
+                    playerInvincible = 0.8;
+                    updatePlayerHpUI();
+                    
+                    // Показываем урон
+                    showFloatingText(`-${Math.floor(dmgTaken)}`, player.x, player.y - 30, "#ff5555");
+                    
+                    // Контратака
+                    if(currentStats?.passiveEffect === 'counter') {
+                        e.hp -= dmgTaken * 0.5;
+                        showFloatingText("⚔️ КОНТРАТАКА!", e.x, e.y - 20, "#b87333");
+                    }
+                    
+                    // Шипы
+                    if(currentStats?.passiveEffect === 'thorns' && Math.random() < 0.15) {
+                        e.hp -= dmgTaken * 0.5;
+                        showFloatingText("🌵 ШИПЫ!", e.x, e.y - 20, "#6ba85e");
+                    }
+                    
+                    // Проверка смерти
+                    if(player.currentHp <= 0) {
+                        if(currentStats?.passiveEffect === 'revive' && !reviveUsed) {
+                            player.currentHp = player.maxHp * 0.5;
+                            reviveUsed = true;
+                            playerInvincible = 2.0;
+                            showToast("🔥 ФЕНИКС ВОЗРОДИЛСЯ!", 2000);
+                            updatePlayerHpUI();
+                        } else {
+                            endBattle();
+                            showToast("💀 ПОРАЖЕНИЕ!", 2000);
+                            return;
+                        }
+                    }
+                }
+                
+                // Отталкивание игрока от врага
+                let angle = Math.atan2(player.y - e.y, player.x - e.x);
+                player.x += Math.cos(angle) * 25;
+                player.y += Math.sin(angle) * 25;
+                
+                // Отталкивание врага от игрока
+                e.x -= Math.cos(angle) * 15;
+                e.y -= Math.sin(angle) * 15;
+            }
+        }
+    }
+    
+    // ==================== ДВИЖЕНИЕ ИГРОКА ====================
+    function movePlayer(deltaSec) {
+        if(!isBattleActive || isPausedForInventory) return;
+        
+        let mx = 0, my = 0;
+        if(keys.w || keys.up) my -= 1;
+        if(keys.s || keys.down) my += 1;
+        if(keys.a || keys.left) mx -= 1;
+        if(keys.d || keys.right) mx += 1;
+        
+        if(mx !== 0 || my !== 0) {
+            let len = Math.hypot(mx, my);
+            let spd = currentStats?.speed || 4.8;
+            
+            if(slowTimer > 0) spd *= 0.6;
+            if(speedBoostTimer > 0) spd *= 1.15;
+            
+            player.x += (mx / len) * spd * deltaSec * 60;
+            player.y += (my / len) * spd * deltaSec * 60;
+        }
+        
+        // Границы
+        player.x = Math.min(Math.max(player.x, 40), canvas.width - 40);
+        player.y = Math.min(Math.max(player.y, 40), canvas.height - 40);
+    }
+    
+    // ==================== СТРЕЛЬБА ====================
+    function updateShooting(deltaSec) {
+        if(!isBattleActive || isPausedForInventory) return;
+        
+        if(mouseHeld && shootCooldown <= 0) {
+            let dmg = getCurrentDamage();
+            let proj = new Projectile(player.x, player.y, mouseX, mouseY, dmg, 10, 12);
+            
+            // Пассивка ожога
+            if(currentStats?.passiveEffect === 'burn') {
+                proj.burn = true;
+            }
+            
+            projectiles.push(proj);
+            shootCooldown = SHOOT_DELAY;
+            
+            // Пассивка кольта (скорострельность)
+            if(currentStats?.passiveEffect === 'colt') {
+                shootCooldown *= 0.85;
+            }
+        } else {
+            shootCooldown -= deltaSec;
+        }
+    }
+    
+    // ==================== ОБНОВЛЕНИЕ ПУЛЬ ====================
+    function updateProjectiles(deltaSec) {
+        // Пули игрока
+        for(let i = 0; i < projectiles.length; i++) {
+            let p = projectiles[i];
+            let finished = p.update(deltaSec);
+            let hit = false;
+            
+            for(let j = 0; j < enemies.length; j++) {
+                let e = enemies[j];
+                let dist = Math.hypot(p.x - e.x, p.y - e.y);
+                
+                if(dist < e.size / 2 + p.size) {
+                    e.hp -= p.damage;
+                    
+                    if(p.burn) {
+                        e.burnTimer = 3.0;
+                    }
+                    
+                    // Замедление при попадании
+                    if(currentStats?.passiveEffect === 'slowOnHit') {
+                        e.speed *= 0.7;
+                        setTimeout(() => e.speed = e.originalSpeed || e.speed, 1000);
+                    }
+                    
+                    addUltCharge(8);
+                    
+                    if(e.hp <= 0) {
+                        killReward(e);
+                        enemies.splice(j, 1);
+                        j--;
+                    }
+                    
+                    hit = true;
+                    break;
+                }
+            }
+            
+            if(hit || finished) {
+                projectiles.splice(i, 1);
+                i--;
+            }
+        }
+        
+        // Вражеские снаряды
+        for(let i = 0; i < enemyProjectiles.length; i++) {
+            let p = enemyProjectiles[i];
+            let finished = p.update(deltaSec);
+            
+            if(!finished) {
+                let dist = Math.hypot(p.x - player.x, p.y - player.y);
+                if(dist < p.size + 30 && playerInvincible <= 0 && invisibleTimer <= 0) {
+                    let dmg = p.damage;
+                    
+                    if(currentStats?.passiveEffect === 'armor') dmg *= 0.8;
+                    if(currentStats?.passiveEffect === 'dodge' && Math.random() < 0.1) dmg = 0;
+                    
+                    player.currentHp -= dmg;
+                    playerInvincible = 0.5;
+                    updatePlayerHpUI();
+                    
+                    if(player.currentHp <= 0) {
+                        if(currentStats?.passiveEffect === 'revive' && !reviveUsed) {
+                            player.currentHp = player.maxHp * 0.5;
+                            reviveUsed = true;
+                            playerInvincible = 2.0;
+                        } else {
+                            endBattle();
+                        }
+                    }
+                    
+                    enemyProjectiles.splice(i, 1);
+                    i--;
+                }
+            } else {
+                enemyProjectiles.splice(i, 1);
+                i--;
+            }
+        }
+    }
+    
+    // ==================== ЛУТБОКСЫ ====================
+    function updateLootBoxes(deltaSec) {
+        for(let i = 0; i < lootBoxes.length; i++) {
+            let box = lootBoxes[i];
+            let dist = Math.hypot(player.x - box.x, player.y - box.y);
+            
+            if(dist < 50) {
+                let r = Math.random();
+                if(r < 0.3) {
+                    let coins = 200 + Math.floor(Math.random() * 300);
+                    player.coins += coins;
+                    showFloatingText(`+${coins}🪙`, box.x, box.y - 20, "#ffd966");
+                } else if(r < 0.6) {
+                    let gems = 5 + Math.floor(Math.random() * 10);
+                    player.gems += gems;
+                    showFloatingText(`+${gems}💎`, box.x, box.y - 20, "#0ff");
+                } else {
+                    damageBuffRemaining = 10.0;
+                    showFloatingText("⚡ БАФФ УРОНА!", box.x, box.y - 20, "#ffaa33");
+                }
+                
+                lootBoxes.splice(i, 1);
+                i--;
+                updateUI();
+            }
+        }
+        
+        // Спавн новых лутбоксов
+        if(Math.random() < 0.003 * deltaSec * 60 && lootBoxes.length < 5) {
+            lootBoxes.push({
+                x: 50 + Math.random() * (canvas.width - 100),
+                y: 50 + Math.random() * (canvas.height - 100),
+                radius: 18
+            });
+        }
+    }
+    
+    // ==================== ОБНОВЛЕНИЕ ТАЙМЕРОВ ====================
+    function updateTimers(deltaSec) {
+        if(damageBuffRemaining > 0) damageBuffRemaining -= deltaSec;
+        if(damageBuffUltraRemaining > 0) damageBuffUltraRemaining -= deltaSec;
+        if(playerInvincible > 0) playerInvincible -= deltaSec;
+        if(invisibleTimer > 0) invisibleTimer -= deltaSec;
+        if(slowTimer > 0) slowTimer -= deltaSec;
+        if(speedBoostTimer > 0) speedBoostTimer -= deltaSec;
+        
+        // Невидимость Леона
+        if(currentStats?.passiveEffect === 'invisible') {
+            if(player.currentHp < player.maxHp * 0.3 && invisibleTimer <= 0) {
+                invisibleTimer = 3.0;
+                showFloatingText("👻 НЕВИДИМОСТЬ!", player.x, player.y - 40, "#2ecc71");
+            }
+        }
+        
+        // Обновление UI баффов
+        let buffText = "💪 без баффа";
+        if(damageBuffUltraRemaining > 0) {
+            buffText = `✨ УЛЬТА ${damageBuffUltraRemaining.toFixed(1)}с`;
+        } else if(damageBuffRemaining > 0) {
+            buffText = `⚡ БАФФ ${damageBuffRemaining.toFixed(1)}с`;
+        }
+        document.getElementById("buffIndicator").innerText = buffText;
+    }
+    
+    // ПРОДОЛЖЕНИЕ В ЧАСТИ 3...
+    // НЕ ЗАКРЫВАЙТЕ СКРИПТ! Сразу вставляйте Часть 3 после этой строки!
+        // ==================== СОХРАНЕНИЕ И ЗАГРУЗКА ====================
+    function saveGame() {
+        try {
+            let saveData = {
+                gems: player.gems,
+                coins: player.coins,
+                unlocked: Array.from(player.unlockedBrawlers),
+                selectedId: player.selectedBrawlerId,
+                totalKills: player.totalKills,
+                currentSkin: player.currentSkin,
+                ownedSkins: player.ownedSkins,
+                currentMapId: currentMapId,
+                wave: wave,
+                achievements: achievements,
+                brawlersLevels: brawlersPool.map(b => ({ id: b.id, level: b.level }))
+            };
+            localStorage.setItem("brawlUltimateSave", JSON.stringify(saveData));
+            console.log("✅ Игра сохранена");
+        } catch(e) {
+            console.warn("Ошибка сохранения:", e);
+        }
+    }
+    
+    function loadGame() {
+        try {
+            let raw = localStorage.getItem("brawlUltimateSave");
+            if(raw) {
+                let d = JSON.parse(raw);
+                player.gems = d.gems || 150;
+                player.coins = d.coins || 3000;
+                player.unlockedBrawlers = new Set(d.unlocked || [0]);
+                player.selectedBrawlerId = d.selectedId || 0;
+                player.totalKills = d.totalKills || 0;
+                
+                if(d.currentSkin) player.currentSkin = d.currentSkin;
+                if(d.ownedSkins) player.ownedSkins = d.ownedSkins;
+                if(d.currentMapId) currentMapId = d.currentMapId;
+                if(d.wave) wave = d.wave;
+                if(d.achievements) achievements = d.achievements;
+                
+                if(d.brawlersLevels) {
+                    d.brawlersLevels.forEach(bl => {
+                        let b = brawlersPool.find(x => x.id === bl.id);
+                        if(b) b.level = bl.level;
+                    });
+                }
+                
+                showToast("📂 Прогресс загружен!", 1500);
+            }
+        } catch(e) {
+            console.warn("Ошибка загрузки:", e);
+        }
+        
+        if(!player.unlockedBrawlers.has(0)) {
+            player.unlockedBrawlers.add(0);
+            player.ownedSkins[0] = ["Стандартный"];
+            player.currentSkin[0] = "Стандартный";
+        }
+        
+        let b = getBrawler(player.selectedBrawlerId);
+        if(b) {
+            let stats = getBrawlerStats(b);
+            player.maxHp = stats.hp;
+            player.currentHp = player.maxHp;
+            currentStats = { ...stats, passiveEffect: b.passiveEffect, speed: 4.8 };
+        }
+        
+        updateUI();
+        renderInventory();
+    }
+    
+    // ==================== ИНВЕНТАРЬ ====================
+    function renderInventory() {
+        let cont = document.getElementById("brawlersContainer");
+        if(!cont) return;
+        cont.innerHTML = "";
+        
+        // Сортируем по редкости
+        let sorted = [...brawlersPool].sort((a, b) => {
+            let rarityOrder = ["COMMON", "RARE", "SUPER_RARE", "EPIC", "MYTHIC", "LEGENDARY"];
+            let aIdx = rarityOrder.indexOf(Object.keys(RARITIES).find(k => RARITIES[k] === a.rarity));
+            let bIdx = rarityOrder.indexOf(Object.keys(RARITIES).find(k => RARITIES[k] === b.rarity));
+            return aIdx - bIdx;
+        });
+        
+        for(let b of sorted) {
+            let unlocked = player.unlockedBrawlers.has(b.id);
+            let card = document.createElement("div");
+            card.className = `brawler-card ${unlocked ? "" : "locked"}`;
+            
+            let stats = getBrawlerStats(b);
+            let skin = player.currentSkin[b.id] || "Стандартный";
+            let skinData = b.skins[skin];
+            
+            card.innerHTML = `
+                <div class="brawler-icon">${skinData?.icon || b.icon}</div>
+                <div class="brawler-name">${b.name}</div>
+                <div style="font-size:11px; color:#aaa;">${b.rarity.name}</div>
+                <div style="font-size:12px;">❤️${stats.hp} ⚔️${stats.dmg}</div>
+                <div style="font-size:11px;">Ур.${b.level}/11</div>
+                <div style="font-size:10px; margin-top:5px; color:#ffd966;">${b.passive.split(':')[0]}</div>
+                ${!unlocked ? 
+                    `<div class="gem-price">💎 ${b.rarity.priceGems}</div>` : 
+                    `<div style="margin-top:5px; color:#4cd964;">✅ ВЛАДЕЛЕЦ</div>`
+                }
+            `;
+            
+            card.addEventListener("click", () => {
+                if(!unlocked) {
+                    // Покупка бойца
+                    if(player.gems >= b.rarity.priceGems) {
+                        player.gems -= b.rarity.priceGems;
+                        player.unlockedBrawlers.add(b.id);
+                        if(!player.ownedSkins[b.id]) player.ownedSkins[b.id] = ["Стандартный"];
+                        if(!player.currentSkin[b.id]) player.currentSkin[b.id] = "Стандартный";
+                        updateUI();
+                        renderInventory();
+                        saveGame();
+                        updateAchievement("brawler", 1);
+                        showToast(`✨ Куплен ${b.name}!`, 1500);
+                    } else {
+                        showToast(`❌ Не хватает ${b.rarity.priceGems - player.gems}💎`, 1200);
+                    }
+                } else {
+                    // Выбор бойца
+                    player.selectedBrawlerId = b.id;
+                    let stats = getBrawlerStats(b);
+                    player.maxHp = stats.hp;
+                    player.currentHp = Math.min(player.currentHp, player.maxHp);
+                    currentStats = { ...stats, passiveEffect: b.passiveEffect, speed: 4.8 };
+                    
+                    // Подсветка выбранного
+                    document.querySelectorAll('.brawler-card').forEach(c => c.style.border = '2px solid #ffcd7e33');
+                    card.style.border = '3px solid #f7b32b';
+                    
+                    updateUI();
+                    saveGame();
+                    showToast(`✅ Выбран ${b.name}`, 1000);
+                }
+            });
+            
+            cont.appendChild(card);
+        }
+    }
+    
+    // ==================== ПОКУПКА ЯЩИКА ====================
+    function openBox() {
+        if(player.gems < 30) {
+            showToast("❌ Нужно 30💎!", 1200);
+            return;
+        }
+        
+        player.gems -= 30;
+        let r = Math.random();
+        let rewardText = "";
+        
+        if(r < 0.25) {
+            let coins = 400 + Math.floor(Math.random() * 600);
+            player.coins += coins;
+            rewardText = `+${coins}🪙`;
+        } else if(r < 0.5) {
+            let gems = 10 + Math.floor(Math.random() * 20);
+            player.gems += gems;
+            rewardText = `+${gems}💎`;
+        } else if(r < 0.75) {
+            damageBuffRemaining = 15.0;
+            rewardText = "⚡ БАФФ УРОНА 15с!";
+        } else {
+            // Шанс на нового бойца
+            let locked = brawlersPool.filter(b => !player.unlockedBrawlers.has(b.id));
+            if(locked.length > 0) {
+                let newBrawler = locked[Math.floor(Math.random() * locked.length)];
+                player.unlockedBrawlers.add(newBrawler.id);
+                if(!player.ownedSkins[newBrawler.id]) player.ownedSkins[newBrawler.id] = ["Стандартный"];
+                if(!player.currentSkin[newBrawler.id]) player.currentSkin[newBrawler.id] = "Стандартный";
+                rewardText = `🎉 НОВЫЙ БОЕЦ: ${newBrawler.name}!`;
+                updateAchievement("brawler", 1);
+            } else {
+                player.gems += 50;
+                rewardText = "+50💎 (все бойцы открыты)";
+            }
+        }
+        
+        updateUI();
+        renderInventory();
+        saveGame();
+        showToast(`🎁 ${rewardText}`, 2000);
+    }
+    
+    // ==================== ПРОКАЧКА БОЙЦА ====================
+    function upgradeSelected() {
+        let b = getBrawler(player.selectedBrawlerId);
+        if(!b) return;
+        if(b.level >= 11) {
+            showToast("🏆 Максимальный уровень!", 1200);
+            return;
+        }
+        
+        let cost = getUpgradeCost(b);
+        if(player.coins >= cost.coins) {
+            player.coins -= cost.coins;
+            b.level++;
+            
+            let stats = getBrawlerStats(b);
+            player.maxHp = stats.hp;
+            currentStats = { ...stats, passiveEffect: b.passiveEffect, speed: 4.8 };
+            
+            updateUI();
+            renderInventory();
+            saveGame();
+            showToast(`⬆️ ${b.name} → Ур.${b.level}!`, 1500);
+        } else {
+            showToast(`❌ Нужно ${cost.coins}🪙`, 1200);
+        }
+    }
+    
+    // ==================== ОТРИСОВКА ====================
+    function drawCanvas() {
+        // Фон карты
+        let map = MAPS[currentMapId];
+        let grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        grad.addColorStop(0, map.bg1);
+        grad.addColorStop(1, map.bg2);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Декорации
+        ctx.fillStyle = "#ffffff20";
+        for(let i = 0; i < 50; i++) {
+            ctx.beginPath();
+            ctx.arc(
+                (i * 131 + currentMapVariant) % canvas.width,
+                (i * 79) % canvas.height,
+                3 + (i % 5),
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+        }
+        currentMapVariant = (currentMapVariant + 0.1) % 100;
+        
+        // Лутбоксы
+        for(let box of lootBoxes) {
+            ctx.save();
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#ffd700";
+            ctx.fillStyle = "#b87c4f";
+            ctx.fillRect(box.x - 15, box.y - 15, 30, 30);
+            ctx.fillStyle = "#ffd700";
+            ctx.font = "bold 20px monospace";
+            ctx.fillText("📦", box.x - 14, box.y + 10);
+            ctx.restore();
+        }
+        
+        // Враги
+        for(let e of enemies) {
+            e.draw(ctx);
+        }
+        
+        // Вражеские снаряды
+        for(let p of enemyProjectiles) {
+            p.draw(ctx);
+        }
+        
+        // Снаряды игрока
+        for(let p of projectiles) {
+            p.draw(ctx);
+        }
+        
+        // Игрок
+        let b = getBrawler(player.selectedBrawlerId);
+        if(b) {
+            ctx.save();
+            
+            if(invisibleTimer > 0) {
+                ctx.globalAlpha = 0.3;
+            }
+            
+            let skin = player.currentSkin[b.id] || "Стандартный";
+            let skinData = b.skins[skin];
+            
+            // Тень
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = "#00000080";
+            
+            // Тело
+            ctx.fillStyle = skinData?.color || "#6ba85e";
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, 30, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Глаза
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.arc(player.x - 10, player.y - 8, 6, 0, Math.PI * 2);
+            ctx.arc(player.x + 10, player.y - 8, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = "#2c2c2c";
+            ctx.beginPath();
+            ctx.arc(player.x - 12, player.y - 10, 3, 0, Math.PI * 2);
+            ctx.arc(player.x + 8, player.y - 10, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Иконка
+            ctx.font = "34px 'Segoe UI Emoji'";
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowBlur = 10;
+            ctx.fillText(skinData?.icon || b.icon, player.x - 20, player.y + 15);
+            
+            // Полоска здоровья
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = "#333333";
+            ctx.fillRect(player.x - 40, player.y - 50, 80, 10);
+            
+            let hpPercent = player.currentHp / player.maxHp;
+            ctx.fillStyle = hpPercent > 0.5 ? "#4cd964" : "#ff9500";
+            ctx.fillRect(player.x - 40, player.y - 50, 80 * hpPercent, 10);
+            
+            ctx.restore();
+        }
+        
+        // Плавающий текст
+        for(let i = 0; i < floatingTexts.length; i++) {
+            let ft = floatingTexts[i];
+            ctx.save();
+            ctx.globalAlpha = ft.life;
+            ctx.fillStyle = ft.color || "#ffd966";
+            ctx.font = "bold 16px 'Segoe UI'";
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = "#000";
+            ctx.fillText(ft.text, ft.x - 30, ft.y - 20 * (1 - ft.life));
+            ctx.restore();
+            
+            ft.life -= 0.02;
+            if(ft.life <= 0) {
+                floatingTexts.splice(i, 1);
+                i--;
+            }
+        }
+        
+        // UI текст
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 24px 'Segoe UI'";
+        ctx.fillText(`🌊 Волна ${wave}`, 25, 60);
+        ctx.font = "18px monospace";
+        ctx.fillText(`🤖 Врагов: ${enemies.length} | ⚔️ ${enemiesKilledThisWave}/${enemiesToSpawn + enemiesKilledThisWave}`, 25, 95);
+        ctx.fillText(`🏆 Убийств: ${player.totalKills}`, 25, 130);
+        
+        // Пауза
+        if(!isBattleActive) {
+            ctx.fillStyle = "#000000aa";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ffcc88";
+            ctx.font = "bold 42px 'Segoe UI'";
+            ctx.textAlign = "center";
+            ctx.fillText("⚔️ БОЙ ОСТАНОВЛЕН", canvas.width / 2, canvas.height / 2);
+            ctx.textAlign = "left";
+        } else if(isPausedForInventory) {
+            ctx.fillStyle = "#000000aa";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ffcc88";
+            ctx.font = "bold 42px 'Segoe UI'";
+            ctx.textAlign = "center";
+            ctx.fillText("⏸️ ПАУЗА (ИНВЕНТАРЬ)", canvas.width / 2, canvas.height / 2);
+            ctx.textAlign = "left";
+        }
+    }
+    
+    // ==================== ИГРОВОЙ ЦИКЛ ====================
+    let lastTimestamp = 0;
+    function gameLoop(now) {
+        let deltaSec = Math.min(0.033, (now - lastTimestamp) / 1000);
+        lastTimestamp = now;
+        
+        if(isBattleActive && !isPausedForInventory) {
+            movePlayer(deltaSec);
+            takeDamageFromEnemies(deltaSec);
+            
+            for(let e of enemies) {
+                e.update(player.x, player.y, deltaSec);
+            }
+            
+            updateWaveSystem(deltaSec);
+            updateShooting(deltaSec);
+            updateProjectiles(deltaSec);
+            updateLootBoxes(deltaSec);
+            updateTimers(deltaSec);
+            
+            // Пассивная регенерация ульты
+            addUltCharge(deltaSec * 2);
+        }
+        
+        drawCanvas();
+        requestAnimationFrame(gameLoop);
+    }
+    
+    // ==================== ОБРАБОТЧИКИ СОБЫТИЙ ====================
+    window.addEventListener('keydown', (e) => {
+        if(isPausedForInventory) return;
+        
+        let k = e.key.toLowerCase();
+        if(k === 'w') keys.w = true;
+        if(k === 's') keys.s = true;
+        if(k === 'a') keys.a = true;
+        if(k === 'd') keys.d = true;
+        if(k === 'arrowup') keys.up = true;
+        if(k === 'arrowdown') keys.down = true;
+        if(k === 'arrowleft') keys.left = true;
+        if(k === 'arrowright') keys.right = true;
+        
+        if(k === 'r' && isBattleActive && !isPausedForInventory) {
+            e.preventDefault();
+            activateUlt();
+        }
+        
+        if(k === 'escape' && isBattleActive) {
+            isPausedForInventory = !isPausedForInventory;
+        }
+    });
+    
+    window.addEventListener('keyup', (e) => {
+        let k = e.key.toLowerCase();
+        if(k === 'w') keys.w = false;
+        if(k === 's') keys.s = false;
+        if(k === 'a') keys.a = false;
+        if(k === 'd') keys.d = false;
+        if(k === 'arrowup') keys.up = false;
+        if(k === 'arrowdown') keys.down = false;
+        if(k === 'arrowleft') keys.left = false;
+        if(k === 'arrowright') keys.right = false;
+    });
+    
+    canvas.addEventListener('mousemove', (e) => {
+        let rect = canvas.getBoundingClientRect();
+        let sx = canvas.width / rect.width;
+        let sy = canvas.height / rect.height;
+        mouseX = (e.clientX - rect.left) * sx;
+        mouseY = (e.clientY - rect.top) * sy;
+    });
+    
+    canvas.addEventListener('mousedown', (e) => {
+        if(e.button === 0 && !isPausedForInventory) {
+            mouseHeld = true;
+        }
+    });
+    
+    window.addEventListener('mouseup', (e) => {
+        if(e.button === 0) {
+            mouseHeld = false;
+        }
+    });
+    
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    
+    // ==================== КНОПКИ ИНТЕРФЕЙСА ====================
+    document.getElementById("openBoxBtn").onclick = () => {
+        if(!isPausedForInventory) openBox();
+    };
+    
+    document.getElementById("upgradeBtn").onclick = () => {
+        if(!isPausedForInventory) upgradeSelected();
+    };
+    
+    document.getElementById("startBattleBtn").onclick = () => {
+        if(!isBattleActive) {
+            startBattle();
+        } else {
+            showToast("Бой уже активен!", 800);
+        }
+    };
+    
+    document.getElementById("endBattleBtn").onclick = () => {
+        if(isBattleActive) {
+            endBattle();
+        } else {
+            showToast("Бой не активен", 800);
+        }
+    };
+    
+    document.getElementById("btnGame").onclick = () => {
+        document.getElementById("gameScreen").classList.add("active");
+        document.getElementById("inventoryScreen").classList.remove("active");
+        document.getElementById("btnGame").classList.add("active");
+        document.getElementById("btnInventory").classList.remove("active");
+        isPausedForInventory = false;
+    };
+    
+    document.getElementById("btnInventory").onclick = () => {
+        document.getElementById("inventoryScreen").classList.add("active");
+        document.getElementById("gameScreen").classList.remove("active");
+        document.getElementById("btnInventory").classList.add("active");
+        document.getElementById("btnGame").classList.remove("active");
+        isPausedForInventory = true;
+        renderInventory();
+    };
+    
+    document.getElementById("resetProgressBtn").onclick = () => {
+        if(confirm("Сбросить ВЕСЬ прогресс? Это нельзя отменить!")) {
+            localStorage.removeItem("brawlUltimateSave");
+            location.reload();
+        }
+    };
+    
+    // ПРОДОЛЖЕНИЕ В ЧАСТИ 4...
+    // НЕ ЗАКРЫВАЙТЕ СКРИПТ! Сразу вставляйте Часть 4 после этой строки!
+        // ==================== СМЕНА КАРТЫ ====================
+    function changeMap() {
+        let mapNames = Object.keys(MAPS);
+        let currentIdx = mapNames.indexOf(currentMapId);
+        let nextIdx = (currentIdx + 1) % mapNames.length;
+        currentMapId = mapNames[nextIdx];
+        document.getElementById("currentMapName").innerText = currentMapId;
+        showToast(`🗺️ Карта: ${currentMapId}`, 1500);
+        saveGame();
+    }
+    
+    // Кнопка смены карты (добавляем в UI)
+    let mapBtn = document.createElement("button");
+    mapBtn.innerText = "🗺️ СМЕНИТЬ КАРТУ";
+    mapBtn.style.background = "#8e44ad";
+    mapBtn.style.boxShadow = "0 5px 0 #5b2c6f";
+    mapBtn.onclick = () => changeMap();
+    document.querySelector(".ui-panel").appendChild(mapBtn);
+    
+    // ==================== МАГАЗИН СКИНОВ ====================
+    function showSkinShop() {
+        isPausedForInventory = true;
+        
+        let b = getBrawler(player.selectedBrawlerId);
+        if(!b) return;
+        
+        let modal = document.createElement("div");
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000;
+        `;
+        
+        let content = document.createElement("div");
+        content.style.cssText = `
+            background: #1e2538; padding: 30px; border-radius: 40px;
+            max-width: 600px; max-height: 80vh; overflow-y: auto;
+            color: white; text-align: center;
+        `;
+        
+        content.innerHTML = `
+            <h2 style="color:#f7b32b;">🎨 СКИНЫ ДЛЯ ${b.name}</h2>
+            <p>💰 Ваши монеты: ${Math.floor(player.coins)}🪙</p>
+            <div id="skinList" style="display: grid; gap: 15px; margin: 20px 0;"></div>
+            <button id="closeSkinShop" style="background:#d9534f; width:100%;">ЗАКРЫТЬ</button>
+        `;
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        let skinList = document.getElementById("skinList");
+        for(let [skinName, skinData] of Object.entries(b.skins)) {
+            let owned = player.ownedSkins[b.id]?.includes(skinName);
+            let isCurrent = player.currentSkin[b.id] === skinName;
+            
+            let card = document.createElement("div");
+            card.style.cssText = `
+                background: ${isCurrent ? '#f7b32b' : '#2c2f3e'};
+                padding: 15px; border-radius: 20px; cursor: pointer;
+                display: flex; align-items: center; gap: 15px;
+                border: 2px solid ${isCurrent ? '#ffd700' : 'transparent'};
+            `;
+            
+            card.innerHTML = `
+                <span style="font-size: 40px;">${skinData.icon}</span>
+                <div style="flex:1; text-align:left;">
+                    <strong>${skinName}</strong>
+                    ${!owned ? `<br>🪙 ${skinData.priceCoins}` : '<br>✅ Владелец'}
+                </div>
+                ${isCurrent ? '<span>✅</span>' : ''}
+            `;
+            
+            card.onclick = () => {
+                if(!owned) {
+                    if(player.coins >= skinData.priceCoins) {
+                        player.coins -= skinData.priceCoins;
+                        if(!player.ownedSkins[b.id]) player.ownedSkins[b.id] = ["Стандартный"];
+                        player.ownedSkins[b.id].push(skinName);
+                        player.currentSkin[b.id] = skinName;
+                        updateUI();
+                        saveGame();
+                        showToast(`🎨 Куплен скин "${skinName}"!`, 1500);
+                        modal.remove();
+                        isPausedForInventory = false;
+                    } else {
+                        showToast(`❌ Не хватает ${skinData.priceCoins - player.coins}🪙`, 1200);
+                    }
+                } else {
+                    player.currentSkin[b.id] = skinName;
+                    updateUI();
+                    saveGame();
+                    showToast(`✅ Скин "${skinName}" применён!`, 1200);
+                    modal.remove();
+                    isPausedForInventory = false;
+                }
+            };
+            
+            skinList.appendChild(card);
+        }
+        
+        document.getElementById("closeSkinShop").onclick = () => {
+            modal.remove();
+            isPausedForInventory = false;
+        };
+    }
+    
+    // Кнопка скинов
+    let skinBtn = document.createElement("button");
+    skinBtn.innerText = "🎨 СКИНЫ";
+    skinBtn.style.background = "#e67e22";
+    skinBtn.style.boxShadow = "0 5px 0 #a04000";
+    skinBtn.onclick = () => showSkinShop();
+    document.querySelector(".ui-panel").appendChild(skinBtn);
+    
+    // ==================== ДОСТИЖЕНИЯ ====================
+    function showAchievements() {
+        isPausedForInventory = true;
+        
+        let modal = document.createElement("div");
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000;
+        `;
+        
+        let content = document.createElement("div");
+        content.style.cssText = `
+            background: #1e2538; padding: 30px; border-radius: 40px;
+            max-width: 500px; max-height: 80vh; overflow-y: auto;
+            color: white;
+        `;
+        
+        content.innerHTML = `
+            <h2 style="color:#f7b32b; text-align:center;">🏆 ДОСТИЖЕНИЯ</h2>
+            <div id="achList" style="margin: 20px 0;"></div>
+            <button id="closeAch" style="background:#d9534f; width:100%;">ЗАКРЫТЬ</button>
+        `;
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        let achList = document.getElementById("achList");
+        for(let [name, ach] of Object.entries(achievements)) {
+            let progress = ach.progress;
+            let target = ach.target;
+            let percent = Math.min(100, (progress / target) * 100);
+            
+            let item = document.createElement("div");
+            item.style.cssText = `
+                background: ${ach.claimed ? '#27ae60' : '#2c2f3e'};
+                padding: 15px; border-radius: 15px; margin-bottom: 10px;
+            `;
+            
+            item.innerHTML = `
+                <strong>${name}</strong><br>
+                <span style="font-size:12px;">${ach.desc}</span><br>
+                <div style="background:#333; height:10px; border-radius:5px; margin:8px 0;">
+                    <div style="background:#f7b32b; width:${percent}%; height:10px; border-radius:5px;"></div>
+                </div>
+                <span style="font-size:12px;">${progress}/${target}</span><br>
+                <span style="font-size:12px; color:#ffd966;">Награда: ${ach.rewardGems}💎 ${ach.rewardCoins || 0}🪙</span>
+                ${ach.claimed ? '<br><span style="color:#4cd964;">✅ ПОЛУЧЕНО</span>' : ''}
+            `;
+            
+            achList.appendChild(item);
+        }
+        
+        document.getElementById("closeAch").onclick = () => {
+            modal.remove();
+            isPausedForInventory = false;
+        };
+    }
+    
+    // Кнопка достижений
+    let achBtn = document.createElement("button");
+    achBtn.innerText = "🏆 ДОСТИЖЕНИЯ";
+    achBtn.style.background = "#9b59b6";
+    achBtn.style.boxShadow = "0 5px 0 #6c3483";
+    achBtn.onclick = () => showAchievements();
+    document.querySelector(".ui-panel").appendChild(achBtn);
+    
+    // ==================== ЕЖЕДНЕВНАЯ НАГРАДА ====================
+    function checkDailyReward() {
+        let lastDate = localStorage.getItem("brawlDailyDate");
+        let today = new Date().toDateString();
+        
+        if(lastDate !== today) {
+            let gems = 20 + Math.floor(Math.random() * 30);
+            let coins = 500 + Math.floor(Math.random() * 1000);
+            player.gems += gems;
+            player.coins += coins;
+            
+            localStorage.setItem("brawlDailyDate", today);
+            updateUI();
+            saveGame();
+            
+            showToast(`🎁 ЕЖЕДНЕВНАЯ НАГРАДА! +${gems}💎 +${coins}🪙`, 4000);
+        }
+    }
+    
+    // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+    function init() {
+        loadGame();
+        
+        // Восстановление HP при загрузке
+        let b = getBrawler(player.selectedBrawlerId);
+        if(b) {
+            let stats = getBrawlerStats(b);
+            player.maxHp = stats.hp;
+            player.currentHp = player.maxHp;
+            currentStats = { ...stats, passiveEffect: b.passiveEffect, speed: 4.8 };
+        }
+        
+        updateUI();
+        renderInventory();
+        
+        // Запуск боя
+        startBattle();
+        
+        // Запуск циклов
+        requestAnimationFrame(gameLoop);
+        requestAnimationFrame(updateRegeneration);
+        
+        // Ежедневная награда
+        checkDailyReward();
+        
+        // Автосохранение каждые 30 секунд
+        setInterval(() => {
+            if(isBattleActive) {
+                saveGame();
+                console.log("💾 Автосохранение");
+            }
+        }, 30000);
+        
+        console.log("✅ BRAWL UNIVERSE: ULTIMATE загружен!");
+    }
+    
+    // ==================== ГОРЯЧИЕ КЛАВИШИ ====================
+    window.addEventListener('keydown', (e) => {
+        // Ctrl+S для ручного сохранения
+        if(e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            saveGame();
+            showToast("💾 Игра сохранена!", 1000);
+        }
+        
+        // M для смены карты
+        if(e.key === 'm' || e.key === 'M') {
+            e.preventDefault();
+            changeMap();
+        }
+        
+        // B для открытия ящика
+        if(e.key === 'b' || e.key === 'B') {
+            e.preventDefault();
+            if(!isPausedForInventory) openBox();
+        }
+        
+        // P для паузы
+        if(e.key === 'p' || e.key === 'P') {
+            e.preventDefault();
+            if(isBattleActive) {
+                isPausedForInventory = !isPausedForInventory;
+                showToast(isPausedForInventory ? "⏸️ ПАУЗА" : "▶️ ПРОДОЛЖИТЬ", 1000);
+            }
+        }
+    });
+    
+    // ==================== ПРЕДОТВРАЩЕНИЕ ПРОКРУТКИ ====================
+    window.addEventListener('keydown', (e) => {
+        let key = e.key.toLowerCase();
+        if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','r','m','b','p'].includes(key)) {
+            e.preventDefault();
+        }
+    }, false);
+    
+    // ==================== МОБИЛЬНАЯ ПОДДЕРЖКА ====================
+    let touchX = 0, touchY = 0;
+    
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        let touch = e.touches[0];
+        let rect = canvas.getBoundingClientRect();
+        let sx = canvas.width / rect.width;
+        let sy = canvas.height / rect.height;
+        touchX = (touch.clientX - rect.left) * sx;
+        touchY = (touch.clientY - rect.top) * sy;
+        mouseHeld = true;
+        mouseX = touchX;
+        mouseY = touchY;
+    });
+    
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        let touch = e.touches[0];
+        let rect = canvas.getBoundingClientRect();
+        let sx = canvas.width / rect.width;
+        let sy = canvas.height / rect.height;
+        mouseX = (touch.clientX - rect.left) * sx;
+        mouseY = (touch.clientY - rect.top) * sy;
+    });
+    
+    canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        mouseHeld = false;
+    });
+    
+    // Виртуальный джойстик (упрощённо - WASD через кнопки на экране)
+    function createMobileControls() {
+        let controlsDiv = document.createElement("div");
+        controlsDiv.style.cssText = `
+            position: fixed; bottom: 20px; left: 20px;
+            display: flex; gap: 10px; z-index: 100;
+        `;
+        
+        let directions = [
+            { key: 'w', text: '⬆️', x: 60, y: 0 },
+            { key: 's', text: '⬇️', x: 60, y: 60 },
+            { key: 'a', text: '⬅️', x: 0, y: 60 },
+            { key: 'd', text: '➡️', x: 120, y: 60 }
+        ];
+        
+        directions.forEach(d => {
+            let btn = document.createElement("button");
+            btn.innerText = d.text;
+            btn.style.cssText = `
+                position: absolute; left: ${d.x}px; top: ${d.y}px;
+                width: 50px; height: 50px; border-radius: 25px;
+                background: #2c2f3ecc; color: white; font-size: 24px;
+                border: none; box-shadow: 0 4px 0 #151a24;
+                cursor: pointer; user-select: none;
+            `;
+            
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys[d.key] = true;
+            });
+            
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys[d.key] = false;
+            });
+            
+            btn.addEventListener('mousedown', () => keys[d.key] = true);
+            btn.addEventListener('mouseup', () => keys[d.key] = false);
+            btn.addEventListener('mouseleave', () => keys[d.key] = false);
+            
+            controlsDiv.appendChild(btn);
+        });
+        
+        // Кнопка ульты
+        let ultBtn = document.createElement("button");
+        ultBtn.innerText = "🔥";
+        ultBtn.style.cssText = `
+            position: fixed; bottom: 20px; right: 20px;
+            width: 70px; height: 70px; border-radius: 35px;
+            background: #e74c3ccc; color: white; font-size: 32px;
+            border: none; box-shadow: 0 6px 0 #a93226;
+            cursor: pointer; z-index: 100;
+        `;
+        
+        ultBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            activateUlt();
+        });
+        
+        ultBtn.addEventListener('mousedown', () => activateUlt());
+        
+        controlsDiv.appendChild(ultBtn);
+        
+        if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+            document.body.appendChild(controlsDiv);
+        }
+    }
+    
+    createMobileControls();
+    
+    // ==================== СТАТИСТИКА В КОНСОЛЬ ====================
+    console.log(`
+    ╔══════════════════════════════════════╗
+    ║     BRAWL UNIVERSE: ULTIMATE        ║
+    ╠══════════════════════════════════════╣
+    ║  🎮 WASD - движение                 ║
+    ║  🖱️ ЛКМ - стрельба                   ║
+    ║  🔥 R - ульта                        ║
+    ║  🗺️ M - смена карты                  ║
+    ║  🎁 B - открыть ящик                 ║
+    ║  ⏸️ P - пауза                         ║
+    ║  💾 Ctrl+S - сохранить               ║
+    ╠══════════════════════════════════════╣
+    ║  👑 Боссы наносят ×30 урона!         ║
+    ║  📦 Собирайте лутбоксы!              ║
+    ║  ⭐ Прокачивайте 19 бойцов!          ║
+    ╚══════════════════════════════════════╝
+    `);
+    
+    // ПРОДОЛЖЕНИЕ В ЧАСТИ 5 (ФИНАЛ)...
+    // НЕ ЗАКРЫВАЙТЕ СКРИПТ! Сразу вставляйте Часть 5 после этой строки!
+        // ==================== ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ ====================
+    
+    // Восстановление после загрузки
+    function fullHeal() {
+        let b = getBrawler(player.selectedBrawlerId);
+        if(b) {
+            let stats = getBrawlerStats(b);
+            player.maxHp = stats.hp;
+            player.currentHp = player.maxHp;
+            currentStats = { ...stats, passiveEffect: b.passiveEffect, speed: 4.8 };
+            updatePlayerHpUI();
+        }
+    }
+    
+    // Сброс прогресса (подтверждение)
+    function hardReset() {
+        if(confirm("⚠️ ВНИМАНИЕ! Весь прогресс будет удалён навсегда!\n\nВы уверены?")) {
+            if(confirm("❗ ПОСЛЕДНЕЕ ПРЕДУПРЕЖДЕНИЕ!\n\nСбросить всё?")) {
+                localStorage.removeItem("brawlUltimateSave");
+                localStorage.removeItem("brawlDailyDate");
+                alert("Прогресс сброшен. Страница перезагрузится.");
+                location.reload();
+            }
+        }
+    }
+    
+    // Экспорт сохранения
+    function exportSave() {
+        let saveData = localStorage.getItem("brawlUltimateSave");
+        if(saveData) {
+            let blob = new Blob([saveData], {type: 'application/json'});
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = `brawl_save_${Date.now()}.json`;
+            a.click();
+            showToast("📤 Сохранение экспортировано!", 1500);
+        } else {
+            showToast("❌ Нет данных для экспорта", 1200);
+        }
+    }
+    
+    // Импорт сохранения
+    function importSave(file) {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                let data = JSON.parse(e.target.result);
+                localStorage.setItem("brawlUltimateSave", JSON.stringify(data));
+                showToast("📥 Сохранение импортировано! Перезагрузка...", 1500);
+                setTimeout(() => location.reload(), 1500);
+            } catch(err) {
+                showToast("❌ Ошибка импорта!", 1500);
+            }
+        };
+        reader.readAsText(file);
+    }
+    
+    // Добавляем кнопки экспорта/импорта в инвентарь
+    let exportBtn = document.createElement("button");
+    exportBtn.innerText = "📤 ЭКСПОРТ";
+    exportBtn.style.cssText = "margin-top:10px; width:48%; background:#3498db; box-shadow:0 5px 0 #2471a3;";
+    exportBtn.onclick = exportSave;
+    
+    let importBtn = document.createElement("button");
+    importBtn.innerText = "📥 ИМПОРТ";
+    importBtn.style.cssText = "margin-top:10px; width:48%; background:#2ecc71; box-shadow:0 5px 0 #27ae60;";
+    importBtn.onclick = () => {
+        let input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (e) => {
+            if(e.target.files[0]) importSave(e.target.files[0]);
+        };
+        input.click();
+    };
+    
+    let btnContainer = document.createElement("div");
+    btnContainer.style.cssText = "display: flex; gap: 4%; margin-top: 10px;";
+    btnContainer.appendChild(exportBtn);
+    btnContainer.appendChild(importBtn);
+    document.querySelector(".inventory-grid").appendChild(btnContainer);
+    
+    // Кнопка полного сброса (отдельно)
+    let hardResetBtn = document.createElement("button");
+    hardResetBtn.innerText = "💀 ПОЛНЫЙ СБРОС";
+    hardResetBtn.style.cssText = "margin-top:10px; width:100%; background:#c0392b; box-shadow:0 5px 0 #922b21;";
+    hardResetBtn.onclick = hardReset;
+    document.querySelector(".inventory-grid").appendChild(hardResetBtn);
+    
+    // ==================== ЧИТ-КОДЫ (для тестирования) ====================
+    window.addEventListener('keydown', (e) => {
+        // Ctrl+Shift+G = +1000 гемов
+        if(e.ctrlKey && e.shiftKey && e.key === 'G') {
+            e.preventDefault();
+            player.gems += 1000;
+            updateUI();
+            saveGame();
+            showToast("💰 +1000💎 (чит-код)", 1000);
+        }
+        
+        // Ctrl+Shift+C = +10000 монет
+        if(e.ctrlKey && e.shiftKey && e.key === 'C') {
+            e.preventDefault();
+            player.coins += 10000;
+            updateUI();
+            saveGame();
+            showToast("💰 +10000🪙 (чит-код)", 1000);
+        }
+        
+        // Ctrl+Shift+H = полное здоровье
+        if(e.ctrlKey && e.shiftKey && e.key === 'H') {
+            e.preventDefault();
+            fullHeal();
+            showToast("❤️ Полное здоровье!", 1000);
+        }
+        
+        // Ctrl+Shift+K = убить всех врагов
+        if(e.ctrlKey && e.shiftKey && e.key === 'K') {
+            e.preventDefault();
+            if(isBattleActive) {
+                let count = enemies.length;
+                enemies = [];
+                showToast(`💀 Убито ${count} врагов!`, 1000);
+            }
+        }
+        
+        // Ctrl+Shift+W = следующая волна
+        if(e.ctrlKey && e.shiftKey && e.key === 'W') {
+            e.preventDefault();
+            if(isBattleActive) {
+                enemies = [];
+                enemiesToSpawn = 0;
+                showToast(`🌊 Пропуск волны...`, 1000);
+            }
+        }
+    });
+    
+    // ==================== ИНФОРМАЦИЯ О БОЙЦЕ ПРИ НАВЕДЕНИИ ====================
+    let tooltip = document.createElement("div");
+    tooltip.style.cssText = `
+        position: fixed; background: #1e2538ee; color: white;
+        padding: 15px; border-radius: 20px; backdrop-filter: blur(10px);
+        border: 2px solid #f7b32b; z-index: 2000; display: none;
+        max-width: 300px; pointer-events: none;
+    `;
+    document.body.appendChild(tooltip);
+    
+    // Показываем информацию при наведении на статы бойца
+    document.querySelector(".brawler-stats").addEventListener("mouseenter", () => {
+        let b = getBrawler(player.selectedBrawlerId);
+        if(b) {
+            tooltip.innerHTML = `
+                <strong style="color:#f7b32b;">${b.icon} ${b.name}</strong><br>
+                <span style="color:#aaa;">${b.rarity.name}</span><br>
+                <hr style="border-color:#444;">
+                <span style="color:#ffd966;">${b.passive}</span><br>
+                <hr style="border-color:#444;">
+                Ур.${b.level}/11<br>
+                ❤️ ${player.maxHp} | ⚔️ ${getBrawlerStats(b).dmg}<br>
+                🎨 Скин: ${player.currentSkin[b.id] || "Стандартный"}
+            `;
+            tooltip.style.display = "block";
+        }
+    });
+    
+    document.querySelector(".brawler-stats").addEventListener("mousemove", (e) => {
+        tooltip.style.left = (e.clientX + 20) + "px";
+        tooltip.style.top = (e.clientY - 40) + "px";
+    });
+    
+    document.querySelector(".brawler-stats").addEventListener("mouseleave", () => {
+        tooltip.style.display = "none";
+    });
+    
+    // ==================== ЗВУКОВЫЕ ЭФФЕКТЫ (опционально) ====================
+    let audioEnabled = false;
+    let audioCtx = null;
+    
+    function initAudio() {
+        if(!audioCtx) {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch(e) {
+                console.log("Аудио не поддерживается");
+            }
+        }
+    }
+    
+    function playSound(type) {
+        if(!audioEnabled || !audioCtx) return;
+        
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        if(type === 'shoot') {
+            osc.frequency.value = 800;
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        } else if(type === 'hit') {
+            osc.frequency.value = 200;
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        } else if(type === 'ult') {
+            osc.frequency.value = 400;
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+    }
+    
+    // Кнопка включения звука
+    let soundBtn = document.createElement("button");
+    soundBtn.innerText = "🔇 ЗВУК";
+    soundBtn.style.cssText = "background:#7f8c8d; box-shadow:0 5px 0 #5d6d7e;";
+    soundBtn.onclick = () => {
+        if(!audioCtx) initAudio();
+        audioEnabled = !audioEnabled;
+        soundBtn.innerText = audioEnabled ? "🔊 ЗВУК" : "🔇 ЗВУК";
+        if(audioEnabled && audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        showToast(audioEnabled ? "🔊 Звук включен" : "🔇 Звук выключен", 1000);
+    };
+    document.querySelector(".ui-panel").appendChild(soundBtn);
+    
+    // Интеграция звуков в игру (вызывать при событиях)
+    const originalShoot = updateShooting;
+    updateShooting = function(deltaSec) {
+        if(mouseHeld && shootCooldown <= 0 && isBattleActive) {
+            playSound('shoot');
+        }
+        originalShoot.call(this, deltaSec);
+    };
+    
+    const originalTakeDamage = takeDamageFromEnemies;
+    takeDamageFromEnemies = function(deltaSec) {
+        let hpBefore = player.currentHp;
+        originalTakeDamage.call(this, deltaSec);
+        if(player.currentHp < hpBefore) {
+            playSound('hit');
+        }
+    };
+    
+    const originalActivateUlt = activateUlt;
+    activateUlt = function() {
+        let result = originalActivateUlt.call(this);
+        if(result !== false) {
+            playSound('ult');
+        }
+        return result;
+    };
+    
+    // ==================== ЗАПУСК ====================
+    init();
+    
+    // Финальное сообщение
+    console.log("%c🎮 BRAWL UNIVERSE: ULTIMATE 🎮", "font-size: 20px; color: #f7b32b; font-weight: bold;");
+    console.log("%cИгра полностью загружена!", "font-size: 14px; color: #4cd964;");
+    console.log("%cЧит-коды: Ctrl+Shift+G (гемы), Ctrl+Shift+C (монеты), Ctrl+Shift+H (хил), Ctrl+Shift+K (убить всех)", "font-size: 12px; color: #aaa;");
+    
+})(); // ЗАКРЫТИЕ ОСНОВНОГО IIFE
+</script>
+</body>
+</html>
